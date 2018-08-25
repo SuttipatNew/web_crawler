@@ -33,12 +33,12 @@ def save_downloaded_count(count):
 def save_file(html, url):
     global html_dir
     parsed_url = urlparse(url)
-    path = parsed_url.netloc + parsed_url.path
+    path = (parsed_url.netloc + parsed_url.path).replace('/', '\\')
     dirname = ''
 
     if not re.search('.html$', path) and not re.search('.htm$', path) and not re.search('.txt', path):
         dirname = path
-        path = os.path.join(path, 'index.html')
+        path = urljoin(path, 'index.html')
     else:
         dirname = os.path.dirname(path)
     try:
