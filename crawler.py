@@ -1,4 +1,4 @@
-import requests, re, os, codecs
+import requests, re, os, codecs, urllib
 from reppy.robots import Robots
 from urllib.parse import urljoin
 from urllib.parse import urlparse
@@ -37,16 +37,20 @@ def save_file(html, url):
     dirname = ''
 
     if not re.search('.html$', path) and not re.search('.htm$', path) and not re.search('.txt', path):
-        dirname = path
+        dirname = path.replace('/', '\\')
+        if path[-1] != '/':
+            path += '/'
         path = urljoin(path, 'index.html')
+        # print(path)
     else:
-        dirname = os.path.dirname(path)
+        dirname = os.path.dirname(path.replace('/', '\\'))
     try:
+        # print(f'dirname: {dirname}')
         os.makedirs(os.path.join(html_dir, dirname))
     except:
         pass
-    path = os.path.join(html_dir, path)
-    print(f'saving file at {path}')
+    path = os.path.join(html_dir, path.replace('/', '\\'))
+    # print(f'saving file at {path}')
     with codecs.open(path, 'w', 'utf-8') as f:
         f.write(html)
 
@@ -68,7 +72,7 @@ def get_page(url) :
 
 def get_links(html, base_url):
     soup = BeautifulSoup(html, 'html.parser')
-    links = [urljoin(base_url, link.get('href')) for link in soup.find_all('a')]
+    links = [urllib.parse.unquote(urllib.parse.unquote(urljoin(base_url, link.get('href')))).strip() for link in soup.find_all('a')]
     return links
 
 def is_valid_extension(link):
