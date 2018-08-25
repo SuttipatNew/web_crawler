@@ -33,7 +33,7 @@ def save_downloaded_count(count):
 def save_file(html, url):
     global html_dir
     parsed_url = urlparse(url)
-    path = (parsed_url.netloc + parsed_url.path).replace('/', '\\')
+    path = parsed_url.netloc + parsed_url.path
     dirname = ''
 
     if not re.search('.html$', path) and not re.search('.htm$', path) and not re.search('.txt', path):
@@ -46,6 +46,7 @@ def save_file(html, url):
     except:
         pass
     path = os.path.join(html_dir, path)
+    print(f'saving file at {path}')
     with codecs.open(path, 'w', 'utf-8') as f:
         f.write(html)
 
