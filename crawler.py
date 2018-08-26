@@ -130,7 +130,7 @@ def main():
             if not list_robots.is_there(hostname):
                 robots_url = get_baseurl(url) + '/robots.txt'
                 robots_data = get_page(robots_url)
-                if robots_data is not None:
+                if robots_data is not None and re.match('((User-agent|Allow|Disallow):\\s[^\\s]+\\s*)+', robots_data):
                     disallowed = parse_robots(robots_data, get_baseurl(url))
                     list_robots.insert(hostname)
                     save_file(robots_data, robots_url)
