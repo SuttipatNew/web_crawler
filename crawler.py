@@ -80,7 +80,7 @@ def is_valid_extension(link):
     return (not re.search(':\\d+$', urlparse(link).netloc)) and (ext == '' or ext == '.html' or ext == '.htm')
 
 def is_url_valid(url):
-    return get_baseurl(url).find('ku.ac.th') != -1 and url[-4:] != '.php' and is_valid_extension(url) and not visited_q.is_there(url)
+    return get_baseurl(url).find('ku.ac.th') != -1 and url[-4:] != '.php' and is_valid_extension(url)
 
 def parse_robots(robots, base_url):
     disallowed = []
@@ -94,13 +94,13 @@ def parse_robots(robots, base_url):
             reading = False
     return disallowed
 
-def filter_link(links, current_url, disallowed):
-    global headers
-    print(f'\tgot more {len(links)} urls')
-    links = list(set([remove_url_queries(link) for link in links]))
-    links = [link for link in links if is_url_valid(link) and link not in disallowed]
-    print(f'\t{len(links)} are valid')
-    return links
+def filter_url(urls, current_url, disallowed):
+    global headers, visited_q, frontier_q
+    print(f'\tgot more {len(urls)} urls')
+    urls = list(set([remove_url_queries(url) for url in urls]))
+    urls = [url for url in urls if is_url_valid(url) and url not in disallowed and not visited_q.is_there(url) and not frontier_q.is_there(url)]
+    print(f'\t{len(urls)} are valid')
+    return urls
 
 def get_hostname(url):
     return urlparse(url).netloc
@@ -138,7 +138,7 @@ def main():
                         list_sitemap.insert(hostname)
 
             links = get_links(html, url)
-            links = filter_link(links, url, disallowed)
+            links = filter_url(links, url, disallowed)
             frontier_q.merge(links)
         print(f'\t{frontier_q.length()} left in queue')
         frontier_q.save(); visited_q.save(); list_robots.save(); list_sitemap.save(); save_downloaded_count(count)
