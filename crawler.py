@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from my_queue import Queue
 from bs4 import BeautifulSoup
 
-html_dir = 'D:\\Suttipat\\Documents\\html'
+html_dir = 'D:\\Suttipat\\Documents\\Web IR\\web_crawler_result\\html'
 
 headers = {
     'User-Agent': '01204453 bot by 5810504582',
@@ -114,7 +114,7 @@ def main():
     frontier_q.load(); visited_q.load(); list_robots.load(); list_sitemap.load()
     count = load_downloaded_count()
 
-    while frontier_q.length() > 0 and count < 10000:
+    while frontier_q.length() > 0:
         url = frontier_q.get_first()
         visited_q.insert(url)
         print(f'getting: {url}')
@@ -130,7 +130,7 @@ def main():
             if not list_robots.is_there(hostname):
                 robots_url = get_baseurl(url) + '/robots.txt'
                 robots_data = get_page(robots_url)
-                if robots_data is not None and re.match('((User-agent|Allow|Disallow):\\s[^\\s]+\\s*)+', robots_data):
+                if robots_data is not None and re.fullmatch('((#[^\n]+|((User-agent|Allow|Disallow|Sitemap):\\s?[^\\s]+))?\n*)+', robots_data):
                     disallowed = parse_robots(robots_data, get_baseurl(url))
                     list_robots.insert(hostname)
                     save_file(robots_data, robots_url)
