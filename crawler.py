@@ -16,6 +16,7 @@ frontier_q = Queue('./frontier_q')
 visited_q = Queue('./visited_q')
 list_robots = Queue('./list_robots.txt')
 list_sitemap = Queue('./list_sitemap.txt')
+error_list = Queue('./error_list')
 
 def load_downloaded_count():
     try:
@@ -98,10 +99,10 @@ def parse_robots(robots, base_url):
     return disallowed
 
 def filter_url(urls, current_url, disallowed):
-    global headers, visited_q, frontier_q
+    global headers, visited_q, frontier_q, error_list
     print(f'\tgot more {len(urls)} urls')
     urls = list(set([remove_url_queries(url) for url in urls]))
-    urls = [url for url in urls if is_url_valid(url) and url not in disallowed and not visited_q.is_there(url) and not frontier_q.is_there(url)]
+    urls = [url for url in urls if is_url_valid(url) and url not in disallowed and not visited_q.is_there(url) and not frontier_q.is_there(url) and not error_list.is_there(url)]
     print(f'\t{len(urls)} are valid')
     return urls
 
@@ -113,8 +114,8 @@ def get_baseurl(url):
     return f'{parsed_url.scheme}://{parsed_url.netloc}'
 
 def main():
-    global frontier_q, visited_q, list_robots, list_sitemap
-    frontier_q.load(); visited_q.load(); list_robots.load(); list_sitemap.load()
+    global frontier_q, visited_q, list_robots, list_sitemap, error_list
+    frontier_q.load(); visited_q.load(); list_robots.load(); list_sitemap.load(); error_list.load()
     count = load_downloaded_count()
 
     while frontier_q.length() > 0:
@@ -134,7 +135,7 @@ def main():
             if not list_robots.is_there(hostname):
                 robots_url = get_baseurl(url) + '/robots.txt'
                 robots_data = get_page(robots_url)
-                if robots_data is not None and re.fullmatch('((#[^\n]+|((User-agent|Allow|Disallow|Sitemap):\\s?[^\\s]+))?\n*)+', robots_data):
+                if robots_data is not None and re.fullmatch('((#[^\n]*|((User-agent|Allow|Disallow|Sitemap|Crawl-delay):\\s?[^\\s]+))?\\s*\n*)+', robots_data):
                     disallowed = parse_robots(robots_data, get_baseurl(url))
                     list_robots.insert(hostname)
                     save_file(robots_data, robots_url)
