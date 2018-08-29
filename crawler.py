@@ -75,9 +75,12 @@ def get_page(url) :
         return None
 
 def get_links(html, base_url):
-    soup = BeautifulSoup(html, 'html.parser')
-    links = [urllib.parse.unquote(urllib.parse.unquote(urljoin(base_url, link.get('href')))).strip() for link in soup.find_all('a')]
-    return links
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+        links = [urllib.parse.unquote(urllib.parse.unquote(urljoin(base_url, link.get('href')))).strip() for link in soup.find_all('a')]
+        return links
+    except:
+        return []
 
 def is_valid_extension(link):
     ext = os.path.splitext(link)[1]
