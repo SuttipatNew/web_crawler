@@ -62,7 +62,10 @@ def get_page(url) :
     global headers
     try :
         r = requests.get(url,headers=headers,timeout=2)
-        html = r.text if r.status_code != 404 else None
+        html = r.text
+        if r.status_code == 404:
+            print(f'404: {url}')
+            html = None
         return html
     except (KeyboardInterrupt, SystemExit):
         raise
@@ -115,6 +118,7 @@ def main():
     count = load_downloaded_count()
 
     while frontier_q.length() > 0:
+        found_sitemap = False
         url = frontier_q.get_first()
         visited_q.insert(url)
         print(f'getting: {url}')
@@ -136,12 +140,15 @@ def main():
                     save_file(robots_data, robots_url)
                     if re.search('^Sitemap', robots_data, flags=re.MULTILINE):
                         list_sitemap.insert(hostname)
+                        found_sitemap = True
 
             links = get_links(html, url)
             links = filter_url(links, url, disallowed)
             frontier_q.merge(links)
         print(f'\t{frontier_q.length()} left in queue')
         frontier_q.save(); visited_q.save(); list_robots.save(); list_sitemap.save(); save_downloaded_count(count)
+        if found_sitemap:
+            break
         
 if __name__ == '__main__':
     main()
