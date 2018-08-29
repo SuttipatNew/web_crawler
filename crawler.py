@@ -87,7 +87,7 @@ def is_valid_extension(link):
     return (not re.search(':\\d+$', urlparse(link).netloc)) and (ext == '' or ext == '.html' or ext == '.htm')
 
 def is_url_valid(url):
-    return get_baseurl(url).find('ku.ac.th') != -1 and url[-4:] != '.php' and is_valid_extension(url) and len(re.sub('^https?://', '', url).split('/')) <= 10
+    return get_baseurl(url).find('.ku.ac.th') != -1 and url[-4:] != '.php' and is_valid_extension(url) and len(re.sub('^https?://', '', url).split('/')) <= 10
 
 def parse_robots(robots, base_url):
     disallowed = []
