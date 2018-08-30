@@ -1,5 +1,4 @@
 import requests, re, os, codecs, urllib
-from reppy.robots import Robots
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 from my_queue import Queue
@@ -121,7 +120,7 @@ def main():
     frontier_q.load(); visited_q.load(); list_robots.load(); list_sitemap.load(); error_list.load()
     count = load_downloaded_count()
 
-    while frontier_q.length() > 0:
+    while frontier_q.length() > 0 and count < 10000:
         found_sitemap = False
         url = frontier_q.get_first()
         visited_q.insert(url)
@@ -151,8 +150,6 @@ def main():
             frontier_q.merge(links)
         print(f'\t{frontier_q.length()} left in queue')
         frontier_q.save(); visited_q.save(); list_robots.save(); list_sitemap.save(); save_downloaded_count(count)
-        if found_sitemap:
-            break
         
 if __name__ == '__main__':
     main()
